@@ -12,8 +12,8 @@ use DBR::Misc::Session;
 use base 'DBR::Common';
 
 
-my ($tag) = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.6b/lib/DBR.pm $' =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
-my ($rev) = '$Revision: 220 $' =~ /(\d+)/;
+my ($tag) = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc2/lib/DBR.pm $' =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
+my ($rev) = '$Revision: 268 $' =~ /(\d+)/;
 $tag .= '_' . $rev if $tag eq 'trunk';
 
 our $VERSION = $tag || 'unknown';
@@ -30,7 +30,8 @@ sub new {
 
       return $self->_error("Failed to create DBR::Util::Session object") unless
 	$self->{session} = DBR::Misc::Session->new(
-						   logger => $self->{logger}
+						   logger => $self->{logger},
+						   admin  => $params{-admin} ? 1 : 0, # make the user jomp through some hoops for updating metadata
 						  );
 
       return $self->_error("Failed to create DBR::Config object") unless
@@ -119,3 +120,16 @@ sub flush_handles{ DBR::Config::Instance->flush_all_handles }
 sub DESTROY{ $_[0]->flush_handles }
 
 1;
+
+=pod
+
+=head1 NAME
+
+DBR - Database Repository ORM (object-relational mapper).
+
+=head1 MANUAL
+
+See L<DBR::Manual>
+
+=cut
+
