@@ -130,7 +130,10 @@ t/conf/rt_37/spec
 t/conf/rt_37/sql
 t/conf/rt_38/spec
 t/conf/rt_38/sql
+t/conf/rt_40/spec
+t/conf/rt_40/sql
 t/lib/Test.pm
 t/rt_37.t
 t/rt_38.t
+t/rt_40.t
 META.yml                                 Module meta-data (added by MakeMaker)

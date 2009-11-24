@@ -111,7 +111,7 @@ sub _prep{
 		  }
 		  $field ||= $checkfield;
 
-		  $flookup{$field->name} = $field;
+		  $flookup{ $field->name } = $field->clone( with_index => 1 ); # Make a clean copy of the field object in case this one has an alias
 	    }
 
 	    $tablemap{$table_id} = $table;
@@ -140,7 +140,7 @@ sub _prep{
 	    $mymode = 'ro' if $field->is_readonly or $self->{instance}->is_readonly;
 	    $self->_mk_accessor(
 				mode  => $mymode,
-				field => $field,
+				field => $field->clone(with_index => 1), # Make a clean copy of the field object in case this one has an alias
 				helper => $helper,
 			       ) or return $self->_error('Failed to create accessor');
       }
