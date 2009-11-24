@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 use strict;
 
-my $headurl = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc4/Makefile.PL $';
+my $headurl = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc5/Makefile.PL $';
 my ($rev) = '$Rev: 299 $' =~ /(\d+)/;
 my ($tag) = $headurl =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
 if($tag eq 'trunk'){

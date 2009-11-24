@@ -136,4 +136,5 @@ t/lib/Test.pm
 t/rt_37.t
 t/rt_38.t
 t/rt_40.t
+t/sandbox/placeholder
 META.yml                                 Module meta-data (added by MakeMaker)
