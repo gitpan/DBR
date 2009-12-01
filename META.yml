@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                DBR
-version:             1.0.7rc5
+version:             1.0.7rc6
 abstract:            ~
 license:             ~
 author:              ~
@@ -18,7 +18,7 @@ requires:
     DBI:                           0
     Digest::MD5:                   0
     Error:                         0
-    File::Path:                    0
+    File::Path:                    2.07
     FileHandle:                    0
     POSIX:                         0
     Scalar::Util:                  0

@@ -1,8 +1,8 @@
 use ExtUtils::MakeMaker;
 use strict;
 
-my $headurl = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc5/Makefile.PL $';
-my ($rev) = '$Rev: 299 $' =~ /(\d+)/;
+my $headurl = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc6/Makefile.PL $';
+my ($rev) = '$Rev: 308 $' =~ /(\d+)/;
 my ($tag) = $headurl =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
 if($tag eq 'trunk'){
       $tag .= '_' . $rev;
@@ -37,7 +37,7 @@ WriteMakefile(
 				  'Test::More'         => 0,
 				  'Time::HiRes'        => 0,
 				  'Time::ParseDate'    => 0,
-				  'File::Path'         => 0,
+				  'File::Path'         => '2.07',
 				 },
 
 	     );

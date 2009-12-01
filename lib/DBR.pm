@@ -12,7 +12,7 @@ use DBR::Misc::Session;
 use base 'DBR::Common';
 
 
-my ($tag) = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc5/lib/DBR.pm $' =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
+my ($tag) = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc6/lib/DBR.pm $' =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
 my ($rev) = '$Revision: 268 $' =~ /(\d+)/;
 $tag .= '_' . $rev if $tag eq 'trunk';
 
