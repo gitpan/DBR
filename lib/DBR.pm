@@ -12,8 +12,8 @@ use DBR::Misc::Session;
 use base 'DBR::Common';
 
 
-my ($tag) = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc6/lib/DBR.pm $' =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
-my ($rev) = '$Revision: 268 $' =~ /(\d+)/;
+my ($tag) = '$HeadURL: https://perl-dbr.googlecode.com/svn/tags/1.0.7rc7/lib/DBR.pm $' =~ /\/svn\/(?:tags|branches)?\/?(.*?)\//;
+my ($rev) = '$Revision: 312 $' =~ /(\d+)/;
 $tag .= '_' . $rev if $tag eq 'trunk';
 
 our $VERSION = $tag || 'unknown';
@@ -30,8 +30,9 @@ sub new {
 
       return $self->_error("Failed to create DBR::Util::Session object") unless
 	$self->{session} = DBR::Misc::Session->new(
-						   logger => $self->{logger},
-						   admin  => $params{-admin} ? 1 : 0, # make the user jomp through some hoops for updating metadata
+						   logger   => $self->{logger},
+						   admin    => $params{-admin} ? 1 : 0, # make the user jomp through some hoops for updating metadata
+						   fudge_tz => $params{-fudge_tz},
 						  );
 
       return $self->_error("Failed to create DBR::Config object") unless

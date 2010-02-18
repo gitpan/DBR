@@ -121,8 +121,9 @@ sql/dbr_schema_sqlite.sql
 sql/enum_conversion_example.sql
 sql/mysql2sqlite
 t/01_compile.t
-t/02_setup.t
-t/03_common.t
+t/02_timezone.t
+t/03_setup.t
+t/04_common.t
 t/conf/dbr_schema_sqlite.sql
 t/conf/music/spec
 t/conf/music/sql
@@ -132,9 +133,12 @@ t/conf/rt_38/spec
 t/conf/rt_38/sql
 t/conf/rt_40/spec
 t/conf/rt_40/sql
+t/conf/rt_44/spec
+t/conf/rt_44/sql
 t/lib/Test.pm
 t/rt_37.t
 t/rt_38.t
 t/rt_40.t
+t/rt_44.t
 t/sandbox/placeholder
 META.yml                                 Module meta-data (added by MakeMaker)
