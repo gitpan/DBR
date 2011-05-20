@@ -13,8 +13,8 @@ sub new{
       my( $package ) = shift;
       my ($field,$query) = @_;
 
-      croak('field must be a Field object') unless ref($field) =~ /^DBR::Config::Field/; # Could be ::Anon
-      croak('value must be a Value object') unless ref($query) eq 'DBR::Query';
+      croak('first argument must be a Field object') unless ref($field) =~ /^DBR::Config::Field/; # Could be ::Anon
+      croak('second argument must be a Select object') unless ref($query) eq 'DBR::Query::Select';
 
       my $self = [ $field, $query ];
 
@@ -29,7 +29,7 @@ sub sql   { return $_[0]->field->sql($_[1]) . ' IN (' . $_[0]->query->sql($_[1])
 
 sub _validate_self{ 1 }
 
-sub is_emptyset { $_[0]->query->where_is_emptyset }
+sub is_emptyset { $_[0]->query->where->is_emptyset }
 1;
 
 ###########################################

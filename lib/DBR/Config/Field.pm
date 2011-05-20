@@ -15,7 +15,7 @@ use Clone;
 use Carp;
 
 use constant ({
-	       # This MUST match the select fomr dbr_fields verbatim
+	       # This MUST match the select from dbr_fields verbatim
 	       C_field_id    => 0,
 	       C_table_id    => 1,
 	       C_name        => 2,
@@ -27,9 +27,11 @@ use constant ({
 
 	       C_trans_id    => 7,
 	       C_max_value   => 8,
+	       C_regex       => 9,
+	       C_default     => 10,
 
-	       C_is_readonly => 9, # Not in table
-	       C_testsub     => 10,
+	       C_is_readonly => 11, # Not in table
+	       C_testsub     => 12,
 
 	       # Object fields
 	       O_field_id    => 0,
@@ -65,6 +67,7 @@ my %datatypes = (
 		 mediumblob=> { id => 15 },
 		 tinyblob  => { id => 16 },
 		 enum      => { id => 17 }, # I loathe mysql enums
+		 decimal   => { id => 18, numeric => 1, bits => 'NA'}, # HERE - may need a little more attention for proper range checking
 		);
 
 my %datatype_lookup = map { $datatypes{$_}->{id} => {%{$datatypes{$_}}, handle => $_ }} keys %datatypes;
@@ -99,7 +102,7 @@ sub load{
 	my $fields = $dbrh->select(
 				   -table => 'dbr_fields',
 				   # This MUST match constants above
-				   -fields => 'field_id table_id name data_type is_nullable is_signed is_pkey trans_id max_value', 
+				   -fields => 'field_id table_id name data_type is_nullable is_signed is_pkey trans_id max_value regex default_val',
 				   -where  => { table_id => ['d in',@$table_ids] },
 				   -arrayref => 1,
 				  );
@@ -116,10 +119,12 @@ sub load{
 						name     => $field->[C_name],
 						field_id => $field->[C_field_id],
 						is_pkey  => $field->[C_is_pkey] ? 1 : 0,
+						is_req   => !( $field->[C_is_nullable] || $field->[C_is_pkey] ),
+						# OK OK... this is a hack. Just because it's a pkey doesn't mean it's not required.
+						# It would seem that we need to be aware of serial/trigger fields.
 					       ) or die('failed to register field');
 
-
-	    $field->[C_testsub] = _gen_valcheck($field) or die('failed to generate value checking routine');
+	    _gen_valcheck($field) or die('failed to generate value checking routine');
 
 	    $FIELDS_BY_ID{ $field->[C_field_id] } = $field;
 	    push @trans_fids, $field->[C_field_id] if $field->[C_trans_id];
@@ -138,11 +143,12 @@ sub load{
       return 1;
 }
 
-sub _gen_valcheck{
+sub _gen_valcheck{ # Intentionally Non-oo
       my $fieldref = shift;
       my $dt = $datatype_lookup{ $fieldref->[C_data_type] };
 
       my @code;
+
       if($dt->{numeric}){
 	    push @code, 'looks_like_number($v)';
 
@@ -161,11 +167,24 @@ sub _gen_valcheck{
 
       }
 
+      my $R; # For safety sake, using $R for regex, no direct compilation to avoid code insertion
+      my $extra = '';
+      if (defined($fieldref->[C_regex]) && length($fieldref->[C_regex])){
+	    $R = $fieldref->[C_regex];
+	    push @code, "\$v =~ /\$R/o"; # supposedly o is only functional for <5.6
+	    $extra .= "\0" . $R; # Use extra to cache based on the contents of the regex
+      }
+
       my $code = join(' && ', @code);
+
       $code = "!defined(\$v)||($code)" if $fieldref->[C_is_nullable];
 
-      #print " $fieldref->[C_name] => $code \n" if $fieldref->[C_table_id] == 64;
-      return $VALCHECKS{$code} ||= eval 'sub { my $v = shift ; ' . $code . ' }' || die "DBR::Config::Field::_get_valcheck: failed to gen sub '$@'";
+      # print STDERR "VALCHECK: $code\t$R\n";
+
+      $fieldref->[C_testsub] = $VALCHECKS{$code . $extra} ||= eval "sub { my \$v = shift; $code }"
+	|| confess "DBR::Config::Field::_get_valcheck: failed to gen sub '$@'";
+
+      return 1;
 }
 
 
@@ -218,7 +237,7 @@ sub makevalue{ # shortcut function?
 					  value     => $value,
 					  is_number => $self->is_numeric,
 					  field     => $self,
-					 );# or return $self->_error('failed to create value object');
+					 );
 
 }
 
@@ -230,6 +249,7 @@ sub is_nullable  { $FIELDS_BY_ID{  $_[0]->[O_field_id] }->[C_is_nullable] }
 sub is_readonly  { $FIELDS_BY_ID{  $_[0]->[O_field_id] }->[C_is_readonly] }
 sub datatype     { $FIELDS_BY_ID{  $_[0]->[O_field_id] }->[C_data_type]   }
 sub testsub      { $FIELDS_BY_ID{  $_[0]->[O_field_id] }->[C_testsub]     }
+sub default_val  { $FIELDS_BY_ID{  $_[0]->[O_field_id] }->[C_default]     }
 
 sub table    {
       return DBR::Config::Table->new(
@@ -285,6 +305,55 @@ sub update_translator{
 		   ) or die "Failed to update dbr_fields";
 
       $FIELDS_BY_ID{ $self->[O_field_id] }->[C_trans_id] = $new_trans->{id}; # update local copy
+
+      return 1;
+}
+
+sub update_regex{
+      my $self = shift;
+      my $regex = shift;
+
+      $self->[O_session]->is_admin or return $self->_error('Cannot update translator in non-admin mode');
+
+      my $existing_regex = $FIELDS_BY_ID{ $self->[O_field_id] }->[C_regex];
+      return 1 if defined($existing_regex) && $regex eq $existing_regex;
+
+      my $instance = $self->table->conf_instance or die "Failed to retrieve conf instance";
+      my $dbrh     = $instance->connect or die "Failed to connect to conf instance";
+
+      $dbrh->update(
+		    -table  => 'dbr_fields',
+		    -fields => { regex => $regex },
+		    -where  => { field_id => ['d', $self->field_id  ]}
+		   ) or die "Failed to update dbr_fields";
+
+      my $fieldref = $FIELDS_BY_ID{ $self->[O_field_id] };
+      $fieldref->[C_regex] = $regex; # update local copy
+      _gen_valcheck($fieldref);      # Update value test sub
+
+      return 1;
+}
+
+sub update_default{
+      my $self = shift;
+      my $value = shift;
+
+      $self->[O_session]->is_admin or return $self->_error('Cannot update translator in non-admin mode');
+
+      my $existing_value = $FIELDS_BY_ID{ $self->[O_field_id] }->[C_default];
+      return 1 if defined($existing_value) && $value eq $existing_value;
+
+      my $instance = $self->table->conf_instance or die "Failed to retrieve conf instance";
+      my $dbrh     = $instance->connect or die "Failed to connect to conf instance";
+
+      $dbrh->update(
+		    -table  => 'dbr_fields',
+		    -fields => { default_val => $value },
+		    -where  => { field_id => ['d', $self->field_id  ]}
+		   ) or die "Failed to update dbr_fields";
+
+      my $fieldref = $FIELDS_BY_ID{ $self->[O_field_id] };
+      $fieldref->[C_default] = $value; # update local copy
 
       return 1;
 }

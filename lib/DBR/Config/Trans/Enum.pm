@@ -41,17 +41,20 @@ sub moduleload{
 
       my @enumids = $self->_uniq( map {  $_->{enum_id} } @$maps);
 
-      return $self->_error('Failed to select from enum') unless
-	my $values = $dbrh->select(
-				   -table => 'enum',
-				   -fields => 'enum_id handle name override_id',
-				   -where  => { enum_id => ['d in',@enumids ] },
-				  );
+      my $values = [];
+      if(@enumids){
+	    return $self->_error('Failed to select from enum') unless
+	      $values = $dbrh->select(
+				      -table => 'enum',
+				      -fields => 'enum_id handle name override_id',
+				      -where  => { enum_id => ['d in',@enumids ] },
+				     );
+      }
 
       my %VALUES_BY_ID;
       foreach my $value (@$values){
 	    my $enum_id = $value->{enum_id};
-	    my $id = $value->{override_id} || $enum_id;
+	    my $id = defined($value->{override_id}) ? $value->{override_id} : $enum_id;
 
 	    $VALUES_BY_ID{ $enum_id } = [$id,$value->{handle},$value->{name}]; #
       }
@@ -107,7 +110,9 @@ sub backward{
       my @out;
       foreach ( $self->_split($value) ){
 	    #otherwise hit the lookup
-	    my $id =  $FIELDMAP{ $self->{field_id} }->[ x_hmap ]->{ $_ }->[ v_id ] || return ();
+	    my $id =  $FIELDMAP{ $self->{field_id} }->[ x_hmap ]->{ $_ }->[ v_id ];
+	    return () unless defined($id);
+
 	    push @out, $id;
       }
 
@@ -144,6 +149,8 @@ use overload
 'ne' => sub { $_[0]->handle ne _strhandle($_[1]) },
 'nomethod' => sub {croak "Enum object: Invalid operation '$_[3]' The ways in which you can use an enum are restricted"}
 ;
+
+*TO_JSON = \&chunk;
 
 sub id     { $_[0][0]->[ v_id     ] }
 sub handle { $_[0][0]->[ v_handle ] }

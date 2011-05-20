@@ -2,7 +2,7 @@
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation.
 
-package DBR::Query::Record;
+package DBR::Record::Base;
 use strict;
 use Carp;
 
@@ -34,6 +34,8 @@ sub gethash{
 # }
 
 sub next { croak "Can not call next on a record" }
+
+sub TO_JSON { die "This part doesn't work yet" } #HERE - this needs work
 
 #sub DESTROY { print STDERR "RECORD DESTROY $_[0]\n"}
 1;
