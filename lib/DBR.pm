@@ -14,7 +14,7 @@ use base 'DBR::Common';
 use DBR::Util::Logger;
 use Carp;
 
-our $VERSION = '1.1.1';
+our $VERSION = '1.2';
 
 my %APP_BY_CONF;
 my %CONF_BY_APP;

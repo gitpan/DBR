@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 use strict;
 
-my $version = '1.1.1';
+my $version = '1.2';
 
 my $has_mysql = eval "require DBD::mysql";
 
