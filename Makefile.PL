@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 use strict;
 
-my $version = '1.1';
+my $version = '1.1.1';
 
 my $has_mysql = eval "require DBD::mysql";
 
@@ -15,6 +15,7 @@ WriteMakefile(
 				  'Curses::UI'         => 0,
 				  'Data::Dumper'       => 0,
 				  'DateTime'           => 0,
+				  'DateTime::Locale'   => 0,
 				  'DateTime::TimeZone' => 0,
 				  $has_mysql ? (# If we have mysql, it needs to be a good version
 				    'DBD::mysql' => '4.002',
@@ -26,7 +27,7 @@ WriteMakefile(
 				  'Moose'              => 0,
 				  'POSIX'              => 0,
 				  'Scalar::Util'       => 0,
-				  'Switch'	       => 0,
+				  'Switch'	           => 0,
 				  'Symbol'             => 0,
 				  'Test::More'         => '0.87',
 				  'Time::HiRes'        => 0,
