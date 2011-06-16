@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               DBR
-version:            1.4
+version:            1.5
 abstract:           ~
 author:  []
 license:            unknown
@@ -11,6 +11,7 @@ build_requires:
     ExtUtils::MakeMaker:  0
 requires:
     Carp:                 0
+    Class::Std:           0
     Clone:                0
     Curses::UI:           0
     Data::Dumper:         0

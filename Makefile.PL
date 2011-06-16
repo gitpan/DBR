@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 use strict;
 
-my $version = '1.4';
+my $version = '1.5';
 
 my $has_mysql = eval "require DBD::mysql";
 
@@ -11,6 +11,7 @@ WriteMakefile(
               EXE_FILES    => [qw'bin/dbr-admin bin/dbr-dump-spec bin/dbr-load-spec bin/dbr-scan-db bin/dbr-config'],
 	      PREREQ_PM       => {
 				  'Carp'               => 0,
+				  'Class::Std'         => 0,
 				  'Clone'              => 0,
 				  'Curses::UI'         => 0,
 				  'Data::Dumper'       => 0,
