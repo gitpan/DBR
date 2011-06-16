@@ -1,11 +1,13 @@
+APP_SETUP.md
 bin/browse.pl
 bin/dbr-admin
 bin/dbr-browse
+bin/dbr-config
 bin/dbr-dump-spec
 bin/dbr-load-spec
 bin/dbr-scan-db
 bin/dbr-test-browse
-CHANGE_LOG
+CHANGELOG.md
 clean
 dist
 doc/COPYING
@@ -115,7 +117,7 @@ lib/DBR/Util/Logger.pm
 lib/DBR/Util/Operator.pm
 Makefile.PL
 MANIFEST			This list of files
-README
+README.md
 sql/dbr_schema_mysql.sql
 sql/dbr_schema_sqlite.sql
 sql/enum_conversion_example.sql
